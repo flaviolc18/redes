@@ -105,7 +105,7 @@ void padln(int n, int size, char c, char *dest)
 		if (i < diff)
 			dest[i] = c;
 		else
-			dest[i] = tmp[i];
+			dest[i] = tmp[i - diff];
 
 	dest[size] = '\n';
 }

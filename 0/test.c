@@ -6,6 +6,23 @@
 
 #define END "\0"
 
+void padln(int n, int size, char c, char *dest)
+{
+	char tmp[size];
+	sprintf(tmp, "%d", n);
+
+	int len = strlen(tmp);
+	int diff = size - len;
+
+	for (int i = 0; i < size; i++)
+		if (i < diff)
+			dest[i] = c;
+		else
+			dest[i] = tmp[i - diff];
+
+	dest[size] = '\n';
+}
+
 int main()
 {
 	struct list l;
@@ -21,6 +38,10 @@ int main()
 	printf("%d\n", pop(&l));
 
 	delete_list(&l);
+
+	// char rst[5];
+	// padln(323, 4, '0', rst);
+	// printf("%s\n", rst);
 
 	// char *s = "\0";
 	// if (strncmp(s, END, 1) == 0)

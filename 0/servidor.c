@@ -99,6 +99,8 @@ void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students
 
 int main(int argc, char *argv[])
 {
+
+	// for the sake of testing
 	if (argc < 3 || strlen(argv[1]) != 8 || strlen(argv[2]) != 8)
 	{
 		char *args[2] = {"<professor_pass>", "<student_pass>"};
@@ -108,6 +110,11 @@ int main(int argc, char *argv[])
 
 	char *pass_professor = argv[1];
 	char *pass_student = argv[2];
+
+	// remove comment when submiting
+	// char pass_professor[PASS_LEN + 1], pass_student[PASS_LEN + 1];
+	// rand_str(pass_professor, PASS_LEN);
+	// rand_str(pass_student, PASS_LEN);
 
 	struct sockaddr_in servaddr;
 	int servsock = start_server(&servaddr);
