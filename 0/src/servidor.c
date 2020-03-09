@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -48,7 +49,7 @@ int start_server(struct sockaddr_in *servaddr)
 void check(int code)
 {
 	if (code == TIMEOUT)
-		return log("TIMEOUT");
+		return logmsg("TIMEOUT");
 }
 
 void handler_prof(int clisock, struct list *students)
@@ -108,9 +109,6 @@ int main(int argc, char *argv[])
 		help(argv[0], 2, args, hint);
 	}
 
-	char *pass_professor = argv[1];
-	char *pass_student = argv[2];
-
 	// remove comment when submiting
 	// char pass_professor[PASS_LEN + 1], pass_student[PASS_LEN + 1];
 	// rand_str(pass_professor, PASS_LEN);
@@ -125,13 +123,12 @@ int main(int argc, char *argv[])
 	while (1)
 	{
 		struct sockaddr_in cliaddr;
-		int cliaddr_len = sizeof(cliaddr);
+		socklen_t cliaddr_len = sizeof(cliaddr);
 
 		int clisock = accept(servsock, (struct sockaddr *)&cliaddr, &cliaddr_len);
 		if (clisock == -1)
 			continue;
 
-		char cliaddr_p[INET_ADDRSTRLEN];
 		handler(clisock, argv[1], argv[2], &students);
 		close(clisock);
 	}

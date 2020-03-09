@@ -19,14 +19,14 @@ void help(char *program, int argc, char *argv[], char *hint)
 	exit(EXIT_SUCCESS);
 }
 
-void log(char *msg)
+void logmsg(char *msg)
 {
 	printf("%s\n", msg);
 }
 
 void logexit(char *msg)
 {
-	log(msg);
+	logmsg(msg);
 	exit(EXIT_FAILURE);
 }
 

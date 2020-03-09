@@ -14,7 +14,7 @@
 
 void help(char *program, int argc, char *argv[], char *hint);
 
-void log(char *msg);
+void logmsg(char *msg);
 
 void logexit(char *msg);
 

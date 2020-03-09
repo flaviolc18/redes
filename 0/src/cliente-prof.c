@@ -17,7 +17,6 @@ void handler(int sockfd, char *pass)
 		return;
 
 	send_msg(sockfd, pass);
-	int count = 0;
 
 	while (1)
 	{

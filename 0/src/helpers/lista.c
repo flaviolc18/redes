@@ -33,22 +33,6 @@ void push(struct list *l, int val)
 	l->tail->prev = n;
 }
 
-int pop(struct list *l)
-{
-	if (empty(l))
-		// meus coração doe ao fazer isso
-		return;
-
-	struct node *n = l->tail->prev;
-	int val = n->val;
-
-	l->tail->prev->prev->next = l->tail;
-	l->tail->prev = l->tail->prev->prev;
-
-	free(n);
-	return val;
-}
-
 void delete_list(struct list *l)
 {
 	struct node *it = l->head;
