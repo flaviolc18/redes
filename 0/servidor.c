@@ -99,7 +99,6 @@ void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students
 
 int main(int argc, char *argv[])
 {
-
 	if (argc < 3 || strlen(argv[1]) != 8 || strlen(argv[2]) != 8)
 	{
 		char *args[2] = {"<professor_pass>", "<student_pass>"};

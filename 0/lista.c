@@ -62,8 +62,6 @@ void delete_list(struct list *l)
 
 struct node *begin(struct list *l)
 {
-	if (empty(l))
-		return NULL;
 	return l->head->next;
 }
 
