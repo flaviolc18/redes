@@ -8,4 +8,6 @@ int connect_serv(struct sockaddr_in *servaddr);
 
 void check_args(int argc, char *argv[]);
 
+void checkexit(int code);
+
 #endif

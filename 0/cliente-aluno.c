@@ -12,18 +12,28 @@
 void handler(int sockfd, char *pass)
 {
 	char buff[MAX_LEN];
+	int rst_recv;
 
-	recv_msg(sockfd, buff, strlen(READY));
+	rst_recv = recv_msg(sockfd, buff, strlen(READY));
+	if (rst_recv != SUCCESS)
+		return checkexit(rst_recv);
+
 	if (strncmp(buff, READY, strlen(READY)) != 0)
 		return;
 
 	send_msg(sockfd, pass);
 
-	recv_msg(sockfd, buff, strlen(OK));
+	rst_recv = recv_msg(sockfd, buff, strlen(OK));
+	if (rst_recv != SUCCESS)
+		return checkexit(rst_recv);
+
 	if (strncmp(buff, OK, strlen(OK)) != 0)
 		return;
 
-	recv_msg(sockfd, buff, strlen(MATRICULA));
+	rst_recv = recv_msg(sockfd, buff, strlen(MATRICULA));
+	if (rst_recv != SUCCESS)
+		return checkexit(rst_recv);
+
 	if (strncmp(buff, MATRICULA, strlen(MATRICULA)) != 0)
 		return;
 

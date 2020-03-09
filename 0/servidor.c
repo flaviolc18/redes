@@ -6,7 +6,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
-#include <errno.h>
 
 #include <utils.h>
 #include <lista.h>
@@ -46,6 +45,12 @@ int start_server(struct sockaddr_in *servaddr)
 	return servsock;
 }
 
+void check(int code)
+{
+	if (code == TIMEOUT)
+		return log("TIMEOUT");
+}
+
 void handler_prof(int clisock, struct list *students)
 {
 	struct node *it;
@@ -60,7 +65,9 @@ void handler_prof(int clisock, struct list *students)
 	send_msgl(clisock, END, 1);
 
 	char buff[strlen(OK) + 1];
-	recv_msg(clisock, buff, strlen(OK));
+	int rst_recv = recv_msg(clisock, buff, strlen(OK));
+	if (rst_recv != SUCCESS)
+		return check(rst_recv);
 }
 
 void handler_stu(int clisock, struct list *students)
@@ -69,7 +76,9 @@ void handler_stu(int clisock, struct list *students)
 	send_msg(clisock, MATRICULA);
 
 	char id[ID_LEN + 1];
-	recv_msg(clisock, id, ID_LEN);
+	int rst_recv = recv_msg(clisock, id, ID_LEN);
+	if (rst_recv != SUCCESS)
+		return check(rst_recv);
 	push(students, atoi(id));
 }
 
@@ -78,12 +87,14 @@ void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students
 	send_msg(clisock, READY);
 
 	char pass[PASS_LEN + 1];
-	recv_msg(clisock, pass, PASS_LEN);
+	int rst_recv = recv_msg(clisock, pass, PASS_LEN);
+	if (rst_recv != SUCCESS)
+		return check(rst_recv);
 
 	if (strncmp(pass, pass_prof, PASS_LEN) != 0)
-		handler_prof(clisock, students);
+		return handler_prof(clisock, students);
 	else if (strncmp(pass, pass_stu, PASS_LEN) != 0)
-		handler_stu(clisock, students);
+		return handler_stu(clisock, students);
 }
 
 int main(int argc, char *argv[])

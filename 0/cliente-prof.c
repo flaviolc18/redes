@@ -22,12 +22,18 @@ void handler(int sockfd, char *pass)
 	while (1)
 	{
 		char fb[1], rest[ID_LEN + 1], idln[ID_LEN + 2];
+		int rst_recv;
 
-		recv_msgr(sockfd, fb, 1);
+		rst_recv = recv_msgr(sockfd, fb, 1);
+		if (rst_recv != SUCCESS)
+			return checkexit(rst_recv);
 
 		if (strncmp(fb, END, 1) != 0)
 		{
-			recv_msg(sockfd, rest, ID_LEN);
+			rst_recv = recv_msg(sockfd, rest, ID_LEN);
+			if (rst_recv != SUCCESS)
+				return checkexit(rst_recv);
+
 			concat(idln, fb, 1, rest, ID_LEN);
 			printf("%s", idln);
 		}

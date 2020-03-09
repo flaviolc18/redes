@@ -15,6 +15,13 @@ int connect_serv(struct sockaddr_in *servaddr)
 	if (sockfd == -1)
 		logexit("ERROR socket()");
 
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	int sockopt_rst = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+	if (sockopt_rst == -1)
+		logexit("ERROR setsockopt(SO_RCVTIMEO)");
+
 	servaddr->sin_family = AF_INET;
 	inet_pton(AF_INET, SERV_IP, &servaddr->sin_addr);
 	servaddr->sin_port = htons(PORT);
@@ -34,4 +41,11 @@ void check_args(int argc, char *argv[])
 		char *hint = "password must be 8 bytes long.";
 		help(argv[0], 1, args, hint);
 	}
+}
+
+void checkexit(int code)
+{
+	if (code == TIMEOUT)
+		return logexit("TIMEOUT");
+	logexit("");
 }
