@@ -35,10 +35,6 @@ int send_msgl(int fd, void *msg, int len)
 	int sent_bytes = send(fd, msg, len, 0);
 	if (sent_bytes != len)
 	{
-
-		if (errno = EAGAIN || errno == EWOULDBLOCK)
-			return TIMEOUT;
-
 		perror("ERROR send()");
 		close(fd);
 		return FAIL;
