@@ -8,14 +8,29 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include <utils.h>
 #include <lista.h>
+#include <poll.h>
 
 #define PORT 51511
 #define MAX_CON 10
 
 pthread_mutex_t lock;
+struct list students;
+struct poll threads;
+
+void close_server()
+{
+	join_workers(&threads);
+	pthread_mutex_destroy(&lock);
+
+	delete_poll(&threads);
+	delete_list(&students);
+
+	exit(EXIT_SUCCESS);
+}
 
 int start_server(struct sockaddr_in *servaddr)
 {
@@ -132,11 +147,10 @@ int main(int argc, char *argv[])
 	struct sockaddr_in servaddr;
 	int servsock = start_server(&servaddr);
 
-	struct list students;
 	init_list(&students);
+	init_poll(&threads);
 
-	struct list threads;
-	init_list(&threads);
+	signal(SIGINT, &close_server);
 
 	int mutex_init_rst = pthread_mutex_init(&lock, NULL);
 	if (mutex_init_rst != 0)
@@ -161,27 +175,19 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		// TODO: implement thread poll
-		pthread_t ti;
-
 		struct handler_args ha;
 		ha.clisock = clisock;
 		ha.pass_prof = argv[1];
 		ha.pass_stu = argv[2];
 		ha.students = &students;
 
+		pthread_t ti;
 		int pthread_rst = pthread_create(&ti, NULL, handler, (void *)&ha);
 		if (pthread_rst != 0)
 		{
 			logmsg("ERROR pthread_create");
 			continue;
 		}
-		push(&threads, ti);
+		add_worker(&threads, ti);
 	}
-
-	for (struct node *it = begin(&threads); it != end(&threads); it = next(it))
-		pthread_join(it->val, NULL);
-	pthread_mutex_destroy(&lock);
-
-	delete_list(&students);
 }

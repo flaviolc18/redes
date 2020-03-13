@@ -35,13 +35,14 @@ void push(struct list *l, int val)
 
 void delete_list(struct list *l)
 {
-	struct node *it = l->head;
-	while (it->next != NULL)
+	struct node *it = l->head->next;
+	while (it != l->tail)
 	{
 		it = it->next;
 		free(it->prev);
 	}
-	free(it);
+	free(l->head);
+	free(l->tail);
 }
 
 struct node *begin(struct list *l)

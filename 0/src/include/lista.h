@@ -20,8 +20,6 @@ int empty(struct list *l);
 
 void push(struct list *l, int val);
 
-int pop(struct list *l);
-
 void delete_list(struct list *l);
 
 struct node *begin(struct list *l);
