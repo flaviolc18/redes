@@ -6,9 +6,6 @@
 
 int main()
 {
-	char rst[5];
-	padln(323, 4, '0', rst);
-	printf("%s\n", rst);
 
 	// char *s = "\0";
 	// if (strncmp(s, END, 1) == 0)

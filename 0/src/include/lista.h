@@ -3,7 +3,7 @@
 
 struct node
 {
-	int val;
+	unsigned int val;
 	struct node *next;
 	struct node *prev;
 };

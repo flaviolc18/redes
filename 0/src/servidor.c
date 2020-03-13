@@ -51,38 +51,37 @@ void handler_prof(int clisock, struct list *students)
 
 	for (it = begin(students); it != end(students); it = next(it))
 	{
-		unsigned int id = htonl(it->val);
-		send_msgl(clisock, &id, sizeof(int));
-		send_msgl(clisock, ENDL, 1);
+		send_int(clisock, it->val);
+		send_msg(clisock, ENDL, 1);
 	}
 
-	send_msgl(clisock, END, 1);
+	send_msg(clisock, END, 1);
 
 	char buff[strlen(OK) + 1];
-	int rst_recv = recv_msg(clisock, buff, strlen(OK));
+	int rst_recv = recv_str(clisock, buff, strlen(OK));
 	if (rst_recv != SUCCESS)
 		return check(rst_recv);
 }
 
 void handler_stu(int clisock, struct list *students)
 {
-	send_msg(clisock, OK);
-	send_msg(clisock, MATRICULA);
+	send_str(clisock, OK);
+	send_str(clisock, MATRICULA);
 
-	unsigned int id;
-	int rst_recv = recv_msgr(clisock, &id, sizeof(int));
+	int id;
+	int rst_recv = recv_int(clisock, &id);
 	if (rst_recv != SUCCESS)
 		return check(rst_recv);
 
-	push(students, ntohl(id));
+	push(students, id);
 }
 
 void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students)
 {
-	send_msg(clisock, READY);
+	send_str(clisock, READY);
 
 	char pass[PASS_LEN + 1];
-	int rst_recv = recv_msg(clisock, pass, PASS_LEN);
+	int rst_recv = recv_str(clisock, pass, PASS_LEN);
 	if (rst_recv != SUCCESS)
 		return check(rst_recv);
 

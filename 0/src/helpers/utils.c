@@ -31,7 +31,7 @@ void logexit(char *msg)
 	exit(EXIT_FAILURE);
 }
 
-int send_msgl(int fd, void *msg, int len)
+int send_msg(int fd, void *msg, int len)
 {
 	int sent_bytes = send(fd, msg, len, 0);
 	if (sent_bytes != len)
@@ -43,13 +43,18 @@ int send_msgl(int fd, void *msg, int len)
 	return SUCCESS;
 }
 
-int send_msg(int fd, void *msg)
+int send_str(int fd, char *str)
 {
-	int len = strlen(msg);
-	return send_msgl(fd, msg, len);
+	return send_msg(fd, str, strlen(str));
 }
 
-int recv_msgr(int fd, void *buff, int len)
+int send_int(int fd, int num)
+{
+	int i = htonl(num);
+	return send_msg(fd, &i, sizeof(int));
+}
+
+int recv_msg(int fd, void *buff, int len)
 {
 	int recvd_bytes = recv(fd, buff, len, MSG_WAITALL);
 
@@ -65,56 +70,36 @@ int recv_msgr(int fd, void *buff, int len)
 	return SUCCESS;
 }
 
-int recv_msg(int fd, char *buff, int len)
+int recv_str(int fd, char *str, int len)
 {
-	int rst = recv_msgr(fd, buff, len);
-	buff[len] = '\0';
+	int rst = recv_msg(fd, str, len);
+	str[len] = '\0';
 	return rst;
 }
 
-static void rand_gen(char *str, int size, char *charset)
+int recv_int(int fd, int *num)
+{
+	int rst = recv_msg(fd, num, sizeof(int));
+	*num = ntohl(*num);
+	return rst;
+}
+
+void rand_str(char *str, int size)
 {
 	srand(time(0));
-	int len = sizeof charset;
+
+	char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	int len = sizeof(charset);
 
 	for (int n = 0; n < size; n++)
 		str[n] = charset[rand() % (len - 1)];
 	str[size] = '\0';
 }
 
-void rand_str(char *str, int size)
-{
-	char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	rand_gen(str, size, charset);
-}
-
-void rand_num(char *num, int size)
-{
-	char charset[] = "0123456789";
-	rand_gen(num, size, charset);
-}
-
 int rand_int()
 {
 	srand(time(0));
 	return rand();
-}
-
-void padln(int n, int size, char c, char *dest)
-{
-	char tmp[size];
-	sprintf(tmp, "%d", n);
-
-	int len = strlen(tmp);
-	int diff = size - len;
-
-	for (int i = 0; i < size; i++)
-		if (i < diff)
-			dest[i] = c;
-		else
-			dest[i] = tmp[i - diff];
-
-	dest[size] = '\n';
 }
 
 void concat(char *dest, char *s1, int l1, char *s2, int l2)

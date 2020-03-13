@@ -19,23 +19,21 @@ void logmsg(char *msg);
 
 void logexit(char *msg);
 
-int send_msg(int fd, void *msg);
+int send_msg(int fd, void *msg, int len);
 
-// send message passing len as param (msgl = msg len)
-int send_msgl(int fd, void *msg, int len);
+int send_str(int fd, char *str);
 
-int recv_msg(int fd, char *buff, int len);
+int send_int(int fd, int num);
 
-// receive raw message, no '\0' at the end (msgr = msg raw)
-int recv_msgr(int fd, void *buff, int len);
+int recv_msg(int fd, void *buff, int len);
+
+int recv_str(int fd, char *str, int len);
+
+int recv_int(int fd, int *num);
 
 void rand_str(char *str, int size);
 
-void rand_num(char *num, int size);
-
 int rand_int();
-
-void padln(int n, int size, char c, char *dest);
 
 void concat(char *dest, char *s1, int l1, char *s2, int l2);
 
