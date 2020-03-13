@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <time.h>
 #include <errno.h>
@@ -48,7 +49,7 @@ int send_msg(int fd, void *msg)
 	return send_msgl(fd, msg, len);
 }
 
-int recv_msgr(int fd, char *buff, int len)
+int recv_msgr(int fd, void *buff, int len)
 {
 	int recvd_bytes = recv(fd, buff, len, MSG_WAITALL);
 
@@ -91,6 +92,12 @@ void rand_num(char *num, int size)
 {
 	char charset[] = "0123456789";
 	rand_gen(num, size, charset);
+}
+
+int rand_int()
+{
+	srand(time(0));
+	return rand();
 }
 
 void padln(int n, int size, char c, char *dest)

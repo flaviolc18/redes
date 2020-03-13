@@ -37,9 +37,8 @@ void handler(int sockfd, char *pass)
 	if (strncmp(buff, MATRICULA, strlen(MATRICULA)) != 0)
 		return;
 
-	char id[ID_LEN + 1];
-	rand_num(id, ID_LEN);
-	send_msg(sockfd, id);
+	unsigned int id = htonl(rand_int());
+	send_msg(sockfd, &id);
 }
 
 int main(int argc, char *argv[])

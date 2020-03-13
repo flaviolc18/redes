@@ -24,13 +24,6 @@ int start_server(struct sockaddr_in *servaddr)
 	if (sockopt_rst == -1)
 		logexit("ERROR setsockopt(SO_REUSEADDR)");
 
-	struct timeval timeout;
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
-	sockopt_rst = setsockopt(servsock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-	if (sockopt_rst == -1)
-		logexit("ERROR setsockopt(SO_RCVTIMEO)");
-
 	servaddr->sin_family = AF_INET;
 	servaddr->sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr->sin_port = htons(PORT);
@@ -58,9 +51,9 @@ void handler_prof(int clisock, struct list *students)
 
 	for (it = begin(students); it != end(students); it = next(it))
 	{
-		char id[ID_LEN + 2];
-		padln(it->val, 4, '0', id);
-		send_msg(clisock, id);
+		unsigned int id = htonl(it->val);
+		send_msgl(clisock, &id, sizeof(int));
+		send_msgl(clisock, ENDL, 1);
 	}
 
 	send_msgl(clisock, END, 1);
@@ -76,11 +69,12 @@ void handler_stu(int clisock, struct list *students)
 	send_msg(clisock, OK);
 	send_msg(clisock, MATRICULA);
 
-	char id[ID_LEN + 1];
-	int rst_recv = recv_msg(clisock, id, ID_LEN);
+	unsigned int id;
+	int rst_recv = recv_msgr(clisock, &id, sizeof(int));
 	if (rst_recv != SUCCESS)
 		return check(rst_recv);
-	push(students, atoi(id));
+
+	push(students, ntohl(id));
 }
 
 void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students)
@@ -128,6 +122,13 @@ int main(int argc, char *argv[])
 		int clisock = accept(servsock, (struct sockaddr *)&cliaddr, &cliaddr_len);
 		if (clisock == -1)
 			continue;
+
+		struct timeval timeout;
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		int sockopt_rst = setsockopt(clisock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+		if (sockopt_rst == -1)
+			logexit("ERROR setsockopt(SO_RCVTIMEO)");
 
 		handler(clisock, argv[1], argv[2], &students);
 		close(clisock);
