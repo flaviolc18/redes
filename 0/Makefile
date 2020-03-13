@@ -18,7 +18,7 @@ CFLAGS := -g -Wall -O3 -std=c11 -ggdb3
 
 main:
 	@mkdir -p $(BINDIR)
-	$(CC) $(CFLAGS) -I $(INCDIR) $(HELPERS) $(SERVFILES) -o $(BINDIR)/$(SERVER)
+	$(CC) $(CFLAGS) -I $(INCDIR) $(HELPERS) $(SERVFILES) -lpthread -o $(BINDIR)/$(SERVER)
 	$(CC) $(CFLAGS) -I $(INCDIR) $(HELPERS) $(STUCLIFILES) -o $(BINDIR)/$(STUCLIENT)
 	$(CC) $(CFLAGS) -I $(INCDIR) $(HELPERS) $(PROFCLIFILES) -o $(BINDIR)/$(PROFCLIENT)
 

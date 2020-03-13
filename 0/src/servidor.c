@@ -7,12 +7,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
+#include <pthread.h>
 
 #include <utils.h>
 #include <lista.h>
 
 #define PORT 51511
 #define MAX_CON 10
+
+pthread_mutex_t lock;
 
 int start_server(struct sockaddr_in *servaddr)
 {
@@ -47,13 +50,14 @@ void check(int code)
 
 void handler_prof(int clisock, struct list *students)
 {
+	pthread_mutex_lock(&lock);
 	struct node *it;
-
 	for (it = begin(students); it != end(students); it = next(it))
 	{
 		send_int(clisock, it->val);
 		send_msg(clisock, ENDL, 1);
 	}
+	pthread_mutex_unlock(&lock);
 
 	send_msg(clisock, END, 1);
 
@@ -73,22 +77,40 @@ void handler_stu(int clisock, struct list *students)
 	if (rst_recv != SUCCESS)
 		return check(rst_recv);
 
+	pthread_mutex_lock(&lock);
 	push(students, id);
+	pthread_mutex_unlock(&lock);
 }
 
-void handler(int clisock, char *pass_prof, char *pass_stu, struct list *students)
+struct handler_args
 {
-	send_str(clisock, READY);
+	int clisock;
+	char *pass_prof;
+	char *pass_stu;
+	struct list *students;
+};
+
+void *handler(void *args)
+{
+	struct handler_args *ha = (struct handler_args *)args;
+
+	send_str(ha->clisock, READY);
 
 	char pass[PASS_LEN + 1];
-	int rst_recv = recv_str(clisock, pass, PASS_LEN);
+	int rst_recv = recv_str(ha->clisock, pass, PASS_LEN);
 	if (rst_recv != SUCCESS)
-		return check(rst_recv);
+	{
+		check(rst_recv);
+		return NULL;
+	}
 
-	if (strncmp(pass, pass_prof, PASS_LEN) != 0)
-		return handler_prof(clisock, students);
-	else if (strncmp(pass, pass_stu, PASS_LEN) != 0)
-		return handler_stu(clisock, students);
+	if (strncmp(pass, ha->pass_prof, PASS_LEN) != 0)
+		handler_prof(ha->clisock, ha->students);
+	else if (strncmp(pass, ha->pass_stu, PASS_LEN) != 0)
+		handler_stu(ha->clisock, ha->students);
+
+	close(ha->clisock);
+	return NULL;
 }
 
 int main(int argc, char *argv[])
@@ -113,6 +135,13 @@ int main(int argc, char *argv[])
 	struct list students;
 	init_list(&students);
 
+	struct list threads;
+	init_list(&threads);
+
+	int mutex_init_rst = pthread_mutex_init(&lock, NULL);
+	if (mutex_init_rst != 0)
+		logexit("ERROR pthread_mutex_init");
+
 	while (1)
 	{
 		struct sockaddr_in cliaddr;
@@ -127,11 +156,32 @@ int main(int argc, char *argv[])
 		timeout.tv_usec = 0;
 		int sockopt_rst = setsockopt(clisock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 		if (sockopt_rst == -1)
-			logexit("ERROR setsockopt(SO_RCVTIMEO)");
+		{
+			logmsg("ERROR setsockopt(SO_RCVTIMEO)");
+			continue;
+		}
 
-		handler(clisock, argv[1], argv[2], &students);
-		close(clisock);
+		// TODO: implement thread poll
+		pthread_t ti;
+
+		struct handler_args ha;
+		ha.clisock = clisock;
+		ha.pass_prof = argv[1];
+		ha.pass_stu = argv[2];
+		ha.students = &students;
+
+		int pthread_rst = pthread_create(&ti, NULL, handler, (void *)&ha);
+		if (pthread_rst != 0)
+		{
+			logmsg("ERROR pthread_create");
+			continue;
+		}
+		push(&threads, ti);
 	}
+
+	for (struct node *it = begin(&threads); it != end(&threads); it = next(it))
+		pthread_join(it->val, NULL);
+	pthread_mutex_destroy(&lock);
 
 	delete_list(&students);
 }
