@@ -54,11 +54,11 @@ int send_int(int fd, int num)
 	return send_msg(fd, &i, sizeof(int));
 }
 
-int recv_msg(int fd, void *buff, int len)
+int recv_msg(int fd, void *buff, int len, int flag)
 {
-	int recvd_bytes = recv(fd, buff, len, MSG_WAITALL);
+	int recvd_bytes = recv(fd, buff, len, flag);
 
-	if (recvd_bytes != len)
+	if (recvd_bytes != len && flag == MSG_WAITALL)
 	{
 		if (errno = EAGAIN || errno == EWOULDBLOCK)
 			return TIMEOUT;
@@ -67,19 +67,19 @@ int recv_msg(int fd, void *buff, int len)
 		close(fd);
 		return FAIL;
 	}
-	return SUCCESS;
+	return recvd_bytes;
 }
 
 int recv_str(int fd, char *str, int len)
 {
-	int rst = recv_msg(fd, str, len);
+	int rst = recv_msg(fd, str, len, MSG_WAITALL);
 	str[len] = '\0';
 	return rst;
 }
 
 int recv_int(int fd, int *num)
 {
-	int rst = recv_msg(fd, num, sizeof(int));
+	int rst = recv_msg(fd, num, sizeof(int), MSG_WAITALL);
 	*num = ntohl(*num);
 	return rst;
 }
@@ -109,4 +109,12 @@ void concat(char *dest, char *s1, int l1, char *s2, int l2)
 			dest[i] = s1[i];
 		else
 			dest[i] = s2[i - l1];
+}
+
+int find(char *str, char c, int len)
+{
+	for (int i = 0; i < len; i++)
+		if (str[i] == c)
+			return i;
+	return -1;
 }

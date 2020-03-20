@@ -69,16 +69,17 @@ void handler_prof(int clisock, struct list *students)
 	struct node *it;
 	for (it = begin(students); it != end(students); it = next(it))
 	{
-		send_int(clisock, it->val);
-		send_msg(clisock, ENDL, 1);
+		char num[20];
+		sprintf(num, "%d\n", it->val);
+		send_str(clisock, num);
 	}
 	pthread_mutex_unlock(&lock);
 
-	send_msg(clisock, END, 1);
+	send_msg(clisock, "\0", 1);
 
 	char buff[strlen(OK) + 1];
 	int rst_recv = recv_str(clisock, buff, strlen(OK));
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 		return check(rst_recv);
 }
 
@@ -89,7 +90,7 @@ void handler_stu(int clisock, struct list *students)
 
 	int id;
 	int rst_recv = recv_int(clisock, &id);
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 		return check(rst_recv);
 
 	pthread_mutex_lock(&lock);
@@ -113,7 +114,7 @@ void *handler(void *args)
 
 	char pass[PASS_LEN + 1];
 	int rst_recv = recv_str(ha->clisock, pass, PASS_LEN);
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 	{
 		check(rst_recv);
 		return NULL;

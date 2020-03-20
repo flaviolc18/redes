@@ -14,7 +14,7 @@ void handler(int sockfd, char *pass)
 	int rst_recv;
 
 	rst_recv = recv_str(sockfd, buff, strlen(READY));
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 		return checkexit(rst_recv);
 
 	if (strncmp(buff, READY, strlen(READY)) != 0)
@@ -23,14 +23,14 @@ void handler(int sockfd, char *pass)
 	send_str(sockfd, pass);
 
 	rst_recv = recv_str(sockfd, buff, strlen(OK));
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 		return checkexit(rst_recv);
 
 	if (strncmp(buff, OK, strlen(OK)) != 0)
 		return;
 
 	rst_recv = recv_str(sockfd, buff, strlen(MATRICULA));
-	if (rst_recv != SUCCESS)
+	if (rst_recv < 0)
 		return checkexit(rst_recv);
 
 	if (strncmp(buff, MATRICULA, strlen(MATRICULA)) != 0)

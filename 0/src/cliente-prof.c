@@ -4,40 +4,36 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include <utils.h>
 #include <cliente.h>
 
 void handler(int sockfd, char *pass)
 {
+	int rst_recv;
 	char buff[MAX_LEN];
-	recv_str(sockfd, buff, 5);
-	if (strncmp(buff, READY, 5) != 0)
+	rst_recv = recv_str(sockfd, buff, strlen(READY));
+	if (rst_recv != strlen(READY) || strncmp(buff, READY, strlen(READY)) != 0)
 		return;
 
 	send_str(sockfd, pass);
 
 	while (1)
 	{
-		char fb[1], rest[ID_LEN], id[ID_LEN];
-		int rst_recv;
-
-		rst_recv = recv_msg(sockfd, fb, 1);
-		if (rst_recv != SUCCESS)
+		rst_recv = recv_msg(sockfd, buff, MAX_LEN - 1, 0);
+		if (rst_recv < 0)
 			return checkexit(rst_recv);
 
-		if (strncmp(fb, END, 1) != 0)
+		if (find(buff, END, rst_recv) == -1)
 		{
-			rst_recv = recv_msg(sockfd, rest, ID_LEN);
-			if (rst_recv != SUCCESS)
-				return checkexit(rst_recv);
-
-			concat(id, fb, 1, rest, ID_LEN - 1);
-			printf("%d\n", ntohl(*(unsigned int *)id));
+			buff[rst_recv] = END;
+			printf("%s", buff);
 		}
 		else
+		{
+			printf("%s", buff);
 			break;
+		}
 	}
 
 	send_str(sockfd, OK);

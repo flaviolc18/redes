@@ -2,16 +2,16 @@
 #define UTILS_H
 
 #define MAX_LEN 1024
-#define FAIL 0
 #define SUCCESS 1
-#define TIMEOUT 2
+#define FAIL -1
+#define TIMEOUT -2
 #define READY "READY"
 #define OK "OK"
 #define MATRICULA "MATRICULA"
 #define PASS_LEN 8
 #define ID_LEN 4
-#define END "\0"
-#define ENDL "\n"
+#define END '\0'
+#define ENDL '\n'
 
 void help(char *program, int argc, char *argv[], char *hint);
 
@@ -25,7 +25,7 @@ int send_str(int fd, char *str);
 
 int send_int(int fd, int num);
 
-int recv_msg(int fd, void *buff, int len);
+int recv_msg(int fd, void *buff, int len, int flag);
 
 int recv_str(int fd, char *str, int len);
 
@@ -36,5 +36,7 @@ void rand_str(char *str, int size);
 int rand_int();
 
 void concat(char *dest, char *s1, int l1, char *s2, int l2);
+
+int find(char *str, char c, int len);
 
 #endif
