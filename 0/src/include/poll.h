@@ -3,25 +3,28 @@
 
 #include <pthread.h>
 
-struct worker
-{
-	pthread_t id;
-	struct worker *next;
-	struct worker *prev;
-};
-
 struct poll
 {
-	struct worker *head;
-	struct worker *tail;
+	pthread_t *threads;
+	int length;
 };
 
-void init_poll(struct poll *p);
+struct worker_args
+{
+	int id;
+	struct poll *p;
+	void *args;
+	void *(*routine)(void *);
+};
 
-void add_worker(struct poll *p, pthread_t id);
+void init_poll(struct poll *, int);
 
-void delete_poll(struct poll *p);
+int is_poll_full(struct poll *p);
 
-void join_workers(struct poll *p);
+void add_worker(struct poll *, void *(*)(void *), void *);
+
+void delete_poll(struct poll *);
+
+void join_workers(struct poll *);
 
 #endif

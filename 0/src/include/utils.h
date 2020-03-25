@@ -39,4 +39,6 @@ void concat(char *dest, char *s1, int l1, char *s2, int l2);
 
 int find(char *str, char c, int len);
 
+int msleep(long miliseconds);
+
 #endif

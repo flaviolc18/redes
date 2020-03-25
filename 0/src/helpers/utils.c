@@ -36,7 +36,6 @@ int send_msg(int fd, void *msg, int len)
 	int sent_bytes = send(fd, msg, len, 0);
 	if (sent_bytes != len)
 	{
-		perror("ERROR send()");
 		close(fd);
 		return FAIL;
 	}
@@ -63,7 +62,6 @@ int recv_msg(int fd, void *buff, int len, int flag)
 		if (errno = EAGAIN || errno == EWOULDBLOCK)
 			return TIMEOUT;
 
-		perror("ERROR recv()");
 		close(fd);
 		return FAIL;
 	}
@@ -86,9 +84,7 @@ int recv_int(int fd, int *num)
 
 void rand_str(char *str, int size)
 {
-	srand(time(0));
-
-	char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	char charset[] = "0123456789";
 	int len = sizeof(charset);
 
 	for (int n = 0; n < size; n++)
@@ -117,4 +113,22 @@ int find(char *str, char c, int len)
 		if (str[i] == c)
 			return i;
 	return -1;
+}
+
+int msleep(long miliseconds)
+{
+	struct timespec req, rem;
+
+	if (miliseconds > 999)
+	{
+		req.tv_sec = (int)(miliseconds / 1000);
+		req.tv_nsec = (miliseconds - ((long)req.tv_sec * 1000)) * 1000000;
+	}
+	else
+	{
+		req.tv_sec = 0;
+		req.tv_nsec = miliseconds * 1000000;
+	}
+
+	return nanosleep(&req, &rem);
 }
